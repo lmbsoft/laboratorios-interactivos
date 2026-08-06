@@ -2,6 +2,47 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Laboratorio</title>
 
+<script>
+/* ===================== GUARDIÁN DEL ARTEFACTO ============================
+   Este bloque va PRIMERO a propósito. Un laboratorio puede llegar dañado —
+   truncado, con un carácter perdido al copiarlo— y el modo de falla natural
+   de una página así es quedarse en blanco, sin decir nada. Acá se convierte
+   ese silencio en un mensaje claro. No moverlo del principio del archivo.  */
+window.__ARTEFACTO = { abierto: true, completo: false, motor: false };
+window.__ARTEFACTO.fallar = function (titulo, detalle, pista) {
+  /* Gana el primer diagnóstico: es el que sabe qué pasó realmente. El error
+     genérico que viene después (por el corte de ejecución) no debe pisarlo. */
+  if (window.__ARTEFACTO.informado) return;
+  window.__ARTEFACTO.informado = true;
+  var d = document.getElementById("__diag");
+  if (!d) {
+    d = document.createElement("div");
+    d.id = "__diag";
+    d.setAttribute("style",
+      "position:fixed;inset:0;z-index:9999;background:#0f1115;color:#d7dde8;" +
+      "font:14px/1.6 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;" +
+      "display:grid;place-items:center;padding:24px;overflow:auto");
+    document.body ? document.body.appendChild(d)
+                  : document.addEventListener("DOMContentLoaded", function () { document.body.appendChild(d); });
+  }
+  d.innerHTML =
+    '<div style="max-width:640px">' +
+    '<div style="font-size:34px;margin-bottom:8px">⚠</div>' +
+    '<h1 style="font-size:19px;margin:0 0 10px">' + titulo + "</h1>" +
+    '<p style="color:#8b95a7;margin:0 0 14px">' + detalle + "</p>" +
+    (pista ? '<p style="background:#161a22;border:1px solid #2a3140;border-radius:8px;' +
+             'padding:12px 14px;margin:0;color:#ffdf9e">' + pista + "</p>" : "") +
+    "</div>";
+};
+window.addEventListener("error", function (e) {
+  window.__ARTEFACTO.fallar(
+    "Este laboratorio no se puede abrir",
+    "El archivo llegó dañado: se interrumpió con <code>" +
+      String(e.message || "error desconocido").replace(/[<>&]/g, "") + "</code>.",
+    "No es algo que puedas resolver desde acá. Avisale a quien te lo entregó para que lo genere de nuevo.");
+});
+</script>
+
 <script id="lab-config" type="application/json">
 @enc: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
 </script>
@@ -82,6 +123,7 @@
   <div class="chip" id="chipAlu">—</div>
   <div class="chip" id="chipTiempo">00:00</div>
   <div class="chip" id="chipProg"><b>0</b>/0</div>
+  <button id="btnAvisos" style="display:none;border-color:var(--warn);color:var(--warn)">⚠ Revisar</button>
   <button id="btnConsigna">Consigna</button>
   <button id="btnDemo" style="display:none">Demostración</button>
   <button id="btnPista">Pedir pista</button>
@@ -1503,6 +1545,12 @@ function construirUI(){
     pintar(m.id,'<span class="i">Conectado a '+esc(m.hostname)+" ("+esc(m.ip)+'). Escribí <b>ayuda</b> para ver los comandos.</span>');
   }
   document.getElementById("btnDemo").style.display=(CFG.demos||[]).length?"":"none";
+  /* Los avisos no impiden usar el laboratorio, pero el docente tiene que
+     verlos antes de publicarlo. Quedan a un botón, sin tapar la pantalla.  */
+  const av=document.getElementById("btnAvisos");
+  av.style.display=(S.avisos||[]).length?"":"none";
+  av.onclick=()=>alert("Revisiones pendientes de esta actividad:\n\n• "+S.avisos.join("\n• ")
+    +"\n\nEl laboratorio funciona igual, pero conviene corregirlo antes de publicarlo.");
   cambiarTab(Object.keys(MAQ)[0]);
   refrescar();
 }
@@ -1898,11 +1946,189 @@ document.addEventListener("keydown",e=>{
   document.querySelectorAll(".modal.act").forEach(m=>{ if(m.id!=="mIdent") m.classList.remove("act"); });
 });
 
+/* ===================== VERIFICACIÓN DEL ARTEFACTO ========================
+   Dos capas. La estructural revisa que el escenario sea coherente: un check
+   con un tipo inexistente no da error, simplemente nunca se pone en verde, y
+   el estudiante no entiende qué le falta. La autoprueba ejercita el motor de
+   punta a punta: si el archivo se copió con algún carácter cambiado, acá se
+   nota, aunque la página parezca sana.                                      */
+const TIPOS_CHECK=new Set(["y","o","no","archivoExiste","archivoCoincide","permisos",
+  "modoOctal","paqueteInstalado","servicioActivo","servicioHabilitado","puertoEscuchando",
+  "firewallActivo","reglaFirewall","usuarioExiste","grupoExiste","usuarioEnGrupo",
+  "montado","sistemaArchivos","fstabTiene","configDirectiva","cronTiene","claveAutorizada",
+  "contenedorCorriendo","puertoPublicado","trasReinicio","comandoEjecutado","expr"]);
+
+function revisarEscenario(cfg){
+  const fatales=[], avisos=[];
+  if(!cfg||!cfg.meta) { fatales.push("el escenario no tiene bloque meta"); return {fatales,avisos}; }
+  if(!Array.isArray(cfg.objetivos)||!cfg.objetivos.length) fatales.push("el escenario no tiene objetivos");
+  if(!Array.isArray(cfg.maquinas)||!cfg.maquinas.length) fatales.push("el escenario no tiene máquinas");
+  if(fatales.length) return {fatales,avisos};
+
+  const ids=new Set(cfg.maquinas.map(m=>m.id));
+  const vistos=new Set();
+  const revisar=(c,oid)=>{
+    if(!c||!c.tipo){ fatales.push("el objetivo "+oid+" tiene un check sin tipo"); return; }
+    if(!TIPOS_CHECK.has(c.tipo)) fatales.push("el objetivo "+oid+" usa un tipo de verificación que no existe: «"+c.tipo+"»");
+    if(c.maquina&&!ids.has(c.maquina)) fatales.push("el objetivo "+oid+" apunta a la máquina «"+c.maquina+"», que no existe");
+    if(c.regex!==undefined){ try{ new RegExp(c.regex); }catch(e){ fatales.push("el objetivo "+oid+" tiene una expresión regular inválida: "+e.message); } }
+    if((c.tipo==="montado"||c.tipo==="sistemaArchivos")&&c.tipo!==undefined&&c.fs===undefined&&c.tipoFs!==undefined)
+      avisos.push("el objetivo "+oid+" usa «tipoFs»; el nombre correcto es «fs»");
+    if(c.de) (Array.isArray(c.de)?c.de:[c.de]).forEach(x=>revisar(x,oid));
+  };
+  for(const o of cfg.objetivos){
+    if(!o.id) fatales.push("hay un objetivo sin id");
+    else if(vistos.has(o.id)) fatales.push("hay dos objetivos con el id «"+o.id+"»");
+    vistos.add(o.id);
+    revisar(o.check,o.id||"(sin id)");
+  }
+  for(const m of cfg.maquinas)
+    if(!(m.usuarios||[]).some(u=>u.nombre===m.usuarioInicial))
+      fatales.push("en la máquina «"+m.id+"» el usuario inicial no figura entre sus usuarios");
+
+  const vis=((cfg.briefing||{}).objetivosVisibles||[]).length;
+  if(vis&&vis!==cfg.objetivos.length)
+    avisos.push("hay "+vis+" objetivos visibles para "+cfg.objetivos.length+" objetivos: la lista que ve el estudiante no coincide con lo que se evalúa");
+  if(!cfg.meta.secreto||cfg.meta.secreto.length<12) avisos.push("meta.secreto es muy corto o falta");
+  if(/CAMBIAR-ESTE-SECRETO/i.test(cfg.meta.secreto||"")) avisos.push("meta.secreto quedó con el valor de ejemplo");
+  if(!cfg.meta.prefijo) avisos.push("falta meta.prefijo: el código de entrega va a salir sin identificar el laboratorio");
+  for(const p of cfg.pistas||[])
+    if(p.objetivo&&!vistos.has(p.objetivo)) avisos.push("la pista apunta al objetivo «"+p.objetivo+"», que no existe");
+  for(const [i,d] of (cfg.demos||[]).entries())
+    for(const p of d.pasos||[])
+      if(p.maquina&&!ids.has(p.maquina)) avisos.push("la demo "+(i+1)+" usa la máquina «"+p.maquina+"», que no existe");
+  if(esAnonimo(cfg)&&JSON.stringify(cfg.objetivos).includes("{{"))
+    avisos.push("hay objetivos que interpolan datos del estudiante, pero el laboratorio es anónimo: nunca se van a poder cumplir");
+  return {fatales,avisos};
+}
+
+/* Autoprueba: arma un sistema de juguete y lo ejercita. Corre sobre su propio
+   estado y restaura los globales, así que no toca el laboratorio real.       */
+function autoprueba(){
+  const cfgReal=CFG, maqReal=MAQ, demoReal=S.demo, t0Real=T0;
+  const fallos=[];
+  const ok=(nombre,cond)=>{ if(!cond) fallos.push(nombre); };
+  try{
+    S.demo=true; T0=T0||Date.now();
+    /* Vector conocido de SHA-256: cualquier carácter alterado en la
+       implementación cambia este valor, y con él todos los códigos.        */
+    ok("SHA-256", sha256("abc")==="ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
+    ok("base32", numAB32(31,1)==="Z"&&numAB32(0,2)==="00");
+    ok("código estable", armarCodigo({id:"x",version:1,secreto:"s"},"P","1","10","0A","")
+                       ===armarCodigo({id:"x",version:1,secreto:"s"},"P","1","10","0A",""));
+    ok("código sensible al secreto", armarCodigo({id:"x",version:1,secreto:"s"},"P","1","10","0A","")
+                                  !==armarCodigo({id:"x",version:1,secreto:"t"},"P","1","10","0A",""));
+
+    CFG={ catalogo:{ srv:{ descripcion:"", servicios:["srv"],
+            archivos:{"/etc/srv.conf":"listen 80\nroot /var/www\n"} } },
+          red:{alcance:[]}, objetivos:[], entrega:{} };
+    MAQ={};
+    const m=crearMaquina({ id:"t", hostname:"t", ip:"10.0.0.1", usuarioInicial:"alumno",
+      sudoSinPassword:true,
+      usuarios:[{nombre:"root",uid:0,grupo:"root",grupos:["root"]},
+                {nombre:"alumno",uid:1000,grupo:"alumno",grupos:["alumno","sudo"]}],
+      paquetesInstalados:["bash","ufw"],
+      fs:{"/home/alumno/":{d:true,o:"alumno",g:"alumno",m:"755"},
+          "/srv/":{d:true,m:"755"}, "/privado/":{d:true,m:"700",o:"root",g:"root"}},
+      discos:[{nombre:"sdb",particiones:[{numero:1,dispositivo:"/dev/sdb1"}]}],
+      servicios:[{nombre:"srv",paquete:"srv",activo:false,habilitado:false,
+        puertoDesde:{archivo:"/etc/srv.conf",regex:"listen\\s+(\\d+)"}}],
+      firewall:{tipo:"ufw",activo:false,reglas:[]} });
+    MAQ.t=m;
+    const c=x=>String(ejecutar(m,x));
+    const bien=x=>{ const r=c(x); return esErr(r)?"":r; };
+
+    ok("redirección y lectura", (bien("echo hola > /home/alumno/a.txt"),bien("cat /home/alumno/a.txt"))==="hola");
+    ok("tubería", bien("echo uno > /home/alumno/b.txt; cat /home/alumno/b.txt | wc -l")==="1");
+    /* Con || la salida combinada arranca con el error del primer tramo, así
+       que hay que mirarla cruda: `bien` la descartaría entera.             */
+    ok("encadenamiento ||", c("ls /no-existe || echo rescate").endsWith("rescate"));
+    ok("encadenamiento &&", c("echo uno && echo dos")==="uno\ndos");
+    ok("variables", bien("V=hola; echo $V")==="hola");
+    ok("permisos denegados", esErr(c("ls /privado")));
+    ok("sudo eleva", !esErr(c("sudo ls /privado")));
+    ok("paquete ausente", esErr(c("systemctl status srv")));
+    ok("apt instala", !esErr(c("sudo apt install srv")));
+    ok("puerto derivado de la configuración",
+       (bien("sudo systemctl start srv"), servicioPuerto(m,m.servicios.srv))===80);
+    ok("reconfigurar cambia el puerto",
+       (bien("sudo sed -i 's/listen 80/listen 8080/' /etc/srv.conf"),
+        bien("sudo systemctl restart srv"), servicioPuerto(m,m.servicios.srv))===8080);
+    ok("firewall bloquea", (bien("sudo ufw allow 22/tcp"),bien("sudo ufw enable"),
+                            firewallPermite(m,8080))===false);
+    ok("montaje sin formatear falla", esErr(c("sudo mount /dev/sdb1 /srv")));
+    ok("mkfs y montaje", (bien("sudo mkfs.ext4 /dev/sdb1"),
+                          bien("sudo mount /dev/sdb1 /srv"), !!montajeEn(m,"/srv")));
+    ok("desmontar oculta el contenido",
+       (bien("echo dato | sudo tee /srv/x.txt"), bien("sudo umount /srv"), !fsGet(m,"/srv/x.txt")));
+    ok("volver a montar recupera",
+       (bien("sudo mount /dev/sdb1 /srv"), (fsGet(m,"/srv/x.txt")||{}).c||"").trim()==="dato");
+    ok("sin enable no sobrevive al reinicio",
+       (bien("sudo reboot"), m.servicios.srv.activo)===false);
+    ok("con enable sobrevive",
+       (bien("sudo systemctl enable srv"),bien("sudo systemctl start srv"),
+        bien("sudo reboot"), m.servicios.srv.activo)===true);
+    ok("evaluador de objetivos",
+       evaluarCheck({tipo:"paqueteInstalado",maquina:"t",paquete:"srv"})===true &&
+       evaluarCheck({tipo:"paqueteInstalado",maquina:"t",paquete:"nada"})===false &&
+       evaluarCheck({tipo:"no",de:{tipo:"firewallActivo",maquina:"t"}})===false &&
+       evaluarCheck({tipo:"archivoCoincide",maquina:"t",ruta:"/etc/srv.conf",regex:"listen\\s+8080"})===true);
+  }catch(e){
+    fallos.push("excepción durante la autoprueba: "+e.message);
+  }finally{
+    CFG=cfgReal; MAQ=maqReal; S.demo=demoReal; T0=t0Real;
+  }
+  return fallos;
+}
+
+function diagnosticar(){
+  const pruebas=autoprueba();
+  if(pruebas.length){
+    window.__ARTEFACTO.fallar("Este laboratorio no funciona correctamente",
+      "El motor no pasó su propia verificación, así que los objetivos podrían no evaluarse bien. Fallaron: <b>"+
+        pruebas.map(esc).join("</b>, <b>")+"</b>.",
+      "El archivo probablemente se copió mal. Avisale a quien te lo entregó para que lo genere de nuevo.");
+    return false;
+  }
+  window.__ARTEFACTO.motor=true;
+  const {fatales,avisos}=revisarEscenario(CFG);
+  if(fatales.length){
+    window.__ARTEFACTO.fallar("Este laboratorio está mal armado",
+      "Hay problemas en la definición de la actividad que impiden evaluarla: <b>"+
+        fatales.map(esc).join("</b>; <b>")+"</b>.",
+      "Es un problema de cómo se generó la actividad, no de lo que hiciste. Avisale al docente.");
+    return false;
+  }
+  S.avisos=avisos;
+  return true;
+}
+
 /* ---------- arranque ------------------------------------------------------ */
-CFG=leerConfig();
+try{ CFG=leerConfig(); }
+catch(e){
+  window.__ARTEFACTO.fallar("Este laboratorio no se puede abrir",
+    "La configuración de la actividad no se pudo leer: <code>"+esc(e.message)+"</code>.",
+    "El archivo llegó dañado o incompleto. Avisale a quien te lo entregó para que lo genere de nuevo.");
+  throw e;
+}
+if(!diagnosticar()) throw new Error("verificación del artefacto fallida");
+/* El centinela es lo último del archivo: si no corrió, llegó truncado. */
+document.addEventListener("DOMContentLoaded",()=>{
+  if(!window.__ARTEFACTO.completo)
+    window.__ARTEFACTO.fallar("Este laboratorio llegó incompleto",
+      "El archivo se cortó antes de terminar, así que falta parte del simulador.",
+      "Avisale a quien te lo entregó para que lo genere de nuevo.");
+},{once:true});
 for(const d of CFG.maquinas) MAQ[d.id]=crearMaquina(d);
 if(location.hash==="#autor"||location.hash==="#validar"){ /* lo maneja el bloque de autor */ }
 else pedirIdentidad();
 </script>
 
 
+
+<script>
+/* Centinela de integridad: esta línea es lo último del archivo. Si no llegó a
+   ejecutarse, el laboratorio se descargó o se copió incompleto. Va DESPUÉS del
+   bloque de autor, para sobrevivir al recorte que produce el modo autor.     */
+window.__ARTEFACTO.completo = true;
+</script>
